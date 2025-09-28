@@ -1,0 +1,5 @@
+# ignore upload images
+uploads/
+
+# ignore Goland .idea
+.idea/
