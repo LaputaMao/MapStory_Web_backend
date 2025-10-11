@@ -8,7 +8,7 @@ import (
 
 // SetupRouter 负责初始化和注册所有路由
 // 注意，它接收所有需要的 handler 作为参数
-func SetupRouter(uploadHandler *handler.UploadHandler, storyMapHandler *handler.StoryMapHandler, imageHandler *handler.ImageHandler) *gin.Engine {
+func SetupRouter(uploadHandler *handler.UploadHandler, storyMapHandler *handler.StoryMapHandler, imageHandler *handler.ImageHandler, userHandler *handler.UserHandler) *gin.Engine {
 	r := gin.Default()
 
 	// 全局中间件 (如果需要的话)
@@ -23,6 +23,15 @@ func SetupRouter(uploadHandler *handler.UploadHandler, storyMapHandler *handler.
 	// 注册路由
 	api := r.Group("/api/v1")
 	{
+
+		// 用户模块路由
+		users := api.Group("/users")
+		{
+			users.POST("/register", userHandler.Register)
+			users.POST("/login", userHandler.Login)
+			users.GET("", userHandler.ListUsers) // GET /api/v1/users
+		}
+
 		// 图片上传路由
 		api.POST("/uploadTest", imageHandler.Upload)
 

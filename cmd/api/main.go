@@ -1,7 +1,10 @@
 // my-web-app/cmd/api/main.go
 package main
 
-import "log"
+import (
+	_ "StoryMap/internal/model"
+	"log"
+)
 
 func main() {
 	// 创建一个新的服务器实例

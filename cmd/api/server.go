@@ -33,8 +33,7 @@ func NewServer() (*Server, error) {
 	}
 
 	// 自动迁移
-	db.AutoMigrate(&model.Image{})
-	db.AutoMigrate(&model.StoryMap{})
+	db.AutoMigrate(&model.Image{}, &model.StoryMap{}, &model.User{})
 
 	// =================================================================
 	// 依赖注入的核心部分
@@ -42,22 +41,25 @@ func NewServer() (*Server, error) {
 	// 1. 初始化 store 层
 	imageStore := store.NewImageStore(db)
 	storyMapStore := store.NewStoryMapStore(db)
+	userStore := store.NewUserStore(db)
 	// userStore := store.NewUserStore(db) // 未来...
 
 	// 2. 初始化 service 层
 	imageService := service.NewImageService(imageStore)
 	storyMapService := service.NewStoryMapService(storyMapStore)
+	userService := service.NewUserService(userStore)
 	// userService := service.NewUserService(userStore) // 未来...
 
 	// 3. 初始化 handler 层
 	imageHandler := handler.NewImageHandler(imageService)
 	uploadHandler := handler.NewUploadHandler(cfg.App.BaseURL)
 	storyMapHandler := handler.NewStoryMapHandler(storyMapService)
+	userHandler := handler.NewUserHandler(userService)
 	// userHandler := handler.NewUserHandler(userService) // 未来...
 
 	// 4. 初始化路由
 	// 把所有 handler 传递给路由设置函数
-	r := router.SetupRouter(uploadHandler, storyMapHandler, imageHandler)
+	r := router.SetupRouter(uploadHandler, storyMapHandler, imageHandler, userHandler)
 
 	// 创建 Server 实例
 	server := &Server{
