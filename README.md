@@ -26,3 +26,28 @@
     更新表结构 (ALTER TABLE)：
 
     ⚠️ 一个重要限制：它不会删除或修改列
+
+### 更新日志
+
+#### 2025.10.11 StoryMap创建模块 : json持久化 + 静态文件服务
+    
+    my-web-app/
+    ├── cmd/
+    │   └── api/
+    │       ├── main.go
+    │       └── server.go
+    ├── configs/
+    │   └── config.go
+    ├── internal/
+    │   ├── handler/
+    │   │   ├── storymap_handler.go
+    │   │   └── upload_handler.go  <-- 新增一个简单的上传处理器
+    │   ├── model/
+    │   │   └── storymap.go        <-- 修改后的模型
+    │   ├── router/
+    │   │   └── router.go          <-- 修改后的路由
+    │   ├── service/
+    │   │   └── storymap_service.go  <-- 修改后的服务
+    │   └── store/
+    │       └── storymap_store.go    <-- 修改后的存储
+    └── uploads/                     <-- 图片会保存在这里
