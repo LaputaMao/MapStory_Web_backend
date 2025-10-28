@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -20,6 +21,15 @@ type storyMapMeta struct {
 	Subtitle        string `json:"subtitle"`
 	TitleBackground string `json:"titleBackground"`
 	//Content         json.RawMessage `json:"content" binding:"required"`
+}
+
+// StoryMapOverviewResponse 定义了概览列表返回的结构
+type StoryMapOverviewResponse struct {
+	ID              uint      `json:"id"`
+	Title           string    `json:"title"`
+	Subtitle        string    `json:"subtitle"`
+	TitleBackground string    `json:"titleBackground"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 type StoryMapHandler struct {
@@ -91,5 +101,61 @@ func (h *StoryMapHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, storyMap)
+	// 关键修改：只返回 content 字段
+	// Gin 会自动处理 json.RawMessage，将其作为原始 JSON 输出
+	c.Data(http.StatusOK, "application/json; charset=utf-8", storyMap.Content)
+}
+
+// List 获取 StoryMap 概览列表 (新增)
+func (h *StoryMapHandler) List(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	title := c.Query("title")
+
+	storyMaps, total, err := h.service.ListStoryMaps(page, pageSize, title)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get story map list"})
+		return
+	}
+
+	// 将 model.StoryMap 转换为 StoryMapOverviewResponse
+	overviews := make([]StoryMapOverviewResponse, len(storyMaps))
+	for i, sm := range storyMaps {
+		overviews[i] = StoryMapOverviewResponse{
+			ID:              sm.ID,
+			Title:           sm.Title,
+			Subtitle:        sm.Subtitle,
+			TitleBackground: sm.TitleBackground,
+			CreatedAt:       sm.CreatedAt,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": overviews,
+		"meta": gin.H{
+			"total":      total,
+			"page":       page,
+			"pageSize":   pageSize,
+			"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
+		},
+	})
+}
+
+// Delete 根据 ID 删除 StoryMap (新增)
+func (h *StoryMapHandler) Delete(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid story map ID"})
+		return
+	}
+
+	err = h.service.DeleteStoryMapByID(uint(id))
+	if err != nil {
+		// 在 GORM v2 中，删除一个不存在的记录不会返回错误，所以我们不需要检查 ErrRecordNotFound
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete story map"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Story map deleted successfully"})
 }

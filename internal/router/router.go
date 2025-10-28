@@ -43,11 +43,13 @@ func SetupRouter(uploadHandler *handler.UploadHandler, storyMapHandler *handler.
 		storymaps := api.Group("/storymaps")
 		{
 			storymaps.POST("", storyMapHandler.Create)
+			storymaps.GET("", storyMapHandler.List)
 			storymaps.GET("/:id", storyMapHandler.GetByID)
-			// 未来可以添加 PUT (更新) 和 DELETE (删除)
+			storymaps.DELETE("/:id", storyMapHandler.Delete)
+
 		}
 
-		// 假设未来我们有了一个 UserHandler
+		// 假设未来有一个 UserHandler
 		// api.POST("/users", userHandler.Create)
 		// api.GET("/users/:id", userHandler.Get)
 	}

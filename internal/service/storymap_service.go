@@ -26,3 +26,13 @@ func (s *StoryMapService) CreateStoryMap(storyMap *model.StoryMap) (*model.Story
 func (s *StoryMapService) GetStoryMapByID(id uint) (*model.StoryMap, error) {
 	return s.store.GetByID(id)
 }
+
+// ListStoryMaps 获取 StoryMap 概览列表
+func (s *StoryMapService) ListStoryMaps(page, pageSize int, title string) ([]model.StoryMap, int64, error) {
+	return s.store.List(page, pageSize, title)
+}
+
+// DeleteStoryMapByID 根据 ID 删除 StoryMap
+func (s *StoryMapService) DeleteStoryMapByID(id uint) error {
+	return s.store.Delete(id)
+}
