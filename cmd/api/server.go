@@ -46,7 +46,7 @@ func NewServer() (*Server, error) {
 
 	// 2. 初始化 service 层
 	imageService := service.NewImageService(imageStore)
-	storyMapService := service.NewStoryMapService(storyMapStore)
+	storyMapService := service.NewStoryMapService(storyMapStore, cfg.App.BaseURL)
 	userService := service.NewUserService(userStore)
 	// userService := service.NewUserService(userStore) // 未来...
 
